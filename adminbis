@@ -1,0 +1,1098 @@
+```html
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Admin - Acculturation IA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --primary:#1a4d7a;
+      --primary-light:#2d6ba8;
+      --accent:#d4af37;
+      --accent-dark:#b8962e;
+      --bg:#fafbfc;
+      --card-bg:#ffffff;
+      --text:#1f2937;
+      --text-light:#6b7280;
+      --success:#10b981;
+      --warning:#f59e0b;
+      --danger:#ef4444;
+      --progress-bg:#e5e7eb;
+      --shadow:rgba(0,0,0,.08);
+      --border:#e5e7eb;
+    }
+
+    *{ margin:0; padding:0; box-sizing:border-box; }
+
+    body{
+      font-family:'DM Sans',sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      line-height:1.6;
+    }
+
+    .header{
+      background:linear-gradient(135deg,var(--primary) 0%,var(--primary-light) 100%);
+      color:#fff;
+      padding:2rem;
+    }
+    .header-content{ max-width:1400px; margin:0 auto; }
+    h1{ font-family:'Playfair Display',serif; font-size:2.5rem; margin-bottom:.5rem; }
+    .subtitle{ opacity:.9; font-size:1.1rem; }
+
+    .container{ max-width:1400px; margin:0 auto; padding:2rem; }
+
+    .stats-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+      gap:1.5rem;
+      margin-bottom:2rem;
+    }
+    .stat-card{
+      background:var(--card-bg);
+      border-radius:12px;
+      padding:1.5rem;
+      box-shadow:0 2px 8px var(--shadow);
+      border-left:4px solid var(--accent);
+    }
+    .stat-card.success{ border-left-color:var(--success); }
+    .stat-card.warning{ border-left-color:var(--warning); }
+    .stat-card.danger{ border-left-color:var(--danger); }
+
+    .stat-label{ color:var(--text-light); font-size:.875rem; margin-bottom:.5rem; }
+    .stat-value{ font-size:2.5rem; font-weight:700; color:var(--primary); }
+    .stat-change{ font-size:.875rem; margin-top:.5rem; display:flex; align-items:center; gap:.25rem; }
+    .stat-change.positive{ color:var(--success); }
+
+    .card{
+      background:var(--card-bg);
+      border-radius:12px;
+      padding:1.5rem;
+      box-shadow:0 2px 8px var(--shadow);
+      margin-bottom:2rem;
+    }
+
+    .card-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:1.5rem;
+      gap:1rem;
+      flex-wrap:wrap;
+    }
+    .card-title{ font-size:1.5rem; font-weight:700; color:var(--primary); }
+
+    .filters{
+      display:flex;
+      gap:1rem;
+      flex-wrap:wrap;
+      margin-bottom:1.5rem;
+      align-items:center;
+    }
+    .filter-group{ display:flex; align-items:center; gap:.5rem; }
+    select,input{
+      padding:.5rem 1rem;
+      border:2px solid var(--border);
+      border-radius:6px;
+      font-family:'DM Sans',sans-serif;
+      font-size:.9rem;
+    }
+    select:focus,input:focus{ outline:none; border-color:var(--primary); }
+
+    .btn{
+      padding:.75rem 1.5rem;
+      border:none;
+      border-radius:8px;
+      font-weight:600;
+      cursor:pointer;
+      transition:all .3s ease;
+      font-size:.9rem;
+      display:inline-flex;
+      align-items:center;
+      gap:.5rem;
+    }
+    .btn-primary{ background:var(--primary); color:#fff; }
+    .btn-primary:hover{ background:var(--primary-light); }
+    .btn-success{ background:var(--success); color:#fff; }
+    .btn-success:hover{ background:#059669; }
+    .btn-ghost{
+      background:transparent;
+      border:2px solid var(--border);
+      color:var(--text);
+    }
+    .btn-ghost:hover{ border-color:var(--primary); color:var(--primary); }
+
+    table{ width:100%; border-collapse:collapse; }
+    thead{ background:#f8f9fa; }
+    th{
+      padding:1rem;
+      text-align:left;
+      font-weight:700;
+      color:var(--text);
+      border-bottom:2px solid var(--border);
+      white-space:nowrap;
+    }
+    td{
+      padding:1rem;
+      border-bottom:1px solid var(--border);
+      vertical-align:top;
+    }
+    tbody tr:hover{ background:#f8f9fa; }
+
+    .progress-mini{
+      width:100%;
+      height:8px;
+      background:var(--progress-bg);
+      border-radius:50px;
+      overflow:hidden;
+    }
+    .progress-mini-fill{
+      height:100%;
+      background:linear-gradient(90deg,var(--accent-dark),var(--accent));
+      border-radius:50px;
+      transition:width .3s ease;
+    }
+
+    .badge{
+      display:inline-block;
+      padding:.25rem .75rem;
+      border-radius:50px;
+      font-size:.75rem;
+      font-weight:700;
+      white-space:nowrap;
+    }
+    .badge-success{ background:#d1fae5; color:#065f46; }
+    .badge-warning{ background:#fef3c7; color:#92400e; }
+    .badge-danger{ background:#fee2e2; color:#991b1b; }
+    .badge-info{ background:#dbeafe; color:#1e40af; }
+
+    .chart-container{ height:300px; margin-top:1rem; }
+    .bar-chart{
+      display:flex;
+      align-items:flex-end;
+      gap:.5rem;
+      height:200px;
+      padding:1rem 0;
+    }
+    .bar{
+      flex:1;
+      background:linear-gradient(180deg,var(--accent),var(--accent-dark));
+      border-radius:4px 4px 0 0;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:flex-start;
+      padding-top:.5rem;
+      color:#fff;
+      font-weight:700;
+      font-size:.875rem;
+      transition:all .3s ease;
+      min-width:22px;
+    }
+    .bar:hover{ opacity:.8; transform:translateY(-4px); }
+    .bar-label{
+      text-align:center;
+      font-size:.75rem;
+      margin-top:.5rem;
+      color:var(--text-light);
+      word-break:break-word;
+    }
+
+    .empty-state{
+      text-align:center;
+      padding:3rem;
+      color:var(--text-light);
+    }
+    .empty-state-icon{ font-size:3rem; margin-bottom:1rem; }
+
+    .loading{ text-align:center; padding:2rem; }
+    .spinner{
+      border:3px solid var(--progress-bg);
+      border-top:3px solid var(--primary);
+      border-radius:50%;
+      width:40px;
+      height:40px;
+      animation:spin 1s linear infinite;
+      margin:0 auto;
+    }
+    @keyframes spin{ 0%{transform:rotate(0)} 100%{transform:rotate(360deg)} }
+
+    .tabs{
+      display:flex;
+      gap:.5rem;
+      border-bottom:2px solid var(--border);
+      margin-bottom:1.5rem;
+      flex-wrap:wrap;
+    }
+    .tab{
+      padding:.75rem 1.5rem;
+      border:none;
+      background:none;
+      cursor:pointer;
+      font-weight:600;
+      color:var(--text-light);
+      border-bottom:3px solid transparent;
+      transition:all .3s ease;
+    }
+    .tab.active{ color:var(--primary); border-bottom-color:var(--accent); }
+    .tab:hover{ color:var(--primary); }
+
+    .notice{
+      padding:1rem 1.25rem;
+      border:1px solid var(--border);
+      border-radius:10px;
+      background:#fff;
+      color:var(--text);
+      box-shadow:0 2px 8px var(--shadow);
+      margin-bottom:1rem;
+    }
+    .notice strong{ color:var(--primary); }
+
+    @media (max-width:768px){
+      .stats-grid{ grid-template-columns:1fr; }
+      table{ font-size:.875rem; }
+      th,td{ padding:.75rem .5rem; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header">
+    <div class="header-content">
+      <h1>Dashboard Administrateur</h1>
+      <p class="subtitle">Suivi et analytics de l'acculturation IA - Module 1</p>
+    </div>
+  </div>
+
+  <div class="container">
+    <div id="securityNotice" class="notice" style="display:none;"></div>
+
+    <!-- Global Stats -->
+    <div class="stats-grid">
+      <div class="stat-card success">
+        <div class="stat-label">Apprenants inscrits</div>
+        <div class="stat-value" id="totalUsers">0</div>
+        <div class="stat-change positive">En croissance</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Taux de complétion moyen</div>
+        <div class="stat-value"><span id="avgCompletion">0</span>%</div>
+      </div>
+
+      <div class="stat-card success">
+        <div class="stat-label">Modules terminés</div>
+        <div class="stat-value" id="completedModules">0</div>
+      </div>
+
+      <div class="stat-card warning">
+        <div class="stat-label">Temps moyen passé</div>
+        <div class="stat-value"><span id="avgTime">0</span> min</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Score moyen aux quiz</div>
+        <div class="stat-value"><span id="avgScore">0</span>%</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Dernière activité</div>
+        <div class="stat-value" style="font-size: 1.2rem;" id="lastActivity">-</div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card">
+      <div class="filters">
+        <div class="filter-group">
+          <label>Département:</label>
+          <select id="filterDepartment">
+            <option value="">Tous</option>
+            <option value="Conseil Clientèle">Conseil Clientèle</option>
+            <option value="Conformité">Conformité</option>
+            <option value="Contrôle">Contrôle</option>
+            <option value="Juridique">Juridique</option>
+            <option value="Risques">Risques</option>
+            <option value="IT">IT / Informatique</option>
+            <option value="Marketing">Marketing</option>
+            <option value="RH">Ressources Humaines</option>
+            <option value="Direction">Direction</option>
+            <option value="Autre">Autre</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>Statut:</label>
+          <select id="filterStatus">
+            <option value="">Tous</option>
+            <option value="completed">Terminé</option>
+            <option value="in-progress">En cours</option>
+            <option value="not-started">Pas commencé</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <input type="text" id="searchUser" placeholder="Rechercher un apprenant..." />
+        </div>
+
+        <div class="filter-group">
+          <label style="display:flex; align-items:center; gap:.5rem;">
+            <input type="checkbox" id="togglePII" />
+            Afficher emails (PII)
+          </label>
+        </div>
+
+        <button class="btn btn-success" id="btnExport">Exporter CSV</button>
+        <button class="btn btn-primary" id="btnRefresh">Actualiser</button>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('overview', this)">Vue d'ensemble</button>
+      <button class="tab" onclick="switchTab('users', this)">Apprenants</button>
+      <button class="tab" onclick="switchTab('analytics', this)">Analytics</button>
+    </div>
+
+    <!-- Overview Tab -->
+    <div id="tab-overview">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Progression par département</h2>
+        </div>
+        <div class="chart-container">
+          <div class="bar-chart" id="departmentChart"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Performance aux quiz par leçon</h2>
+        </div>
+        <div class="chart-container">
+          <div class="bar-chart" id="quizChart"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Users Tab -->
+    <div id="tab-users" style="display:none;">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Détail des apprenants</h2>
+          <span id="userCount">0 apprenants</span>
+        </div>
+        <div id="usersTableContainer"></div>
+      </div>
+    </div>
+
+    <!-- Analytics Tab -->
+    <div id="tab-analytics" style="display:none;">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Statistiques détaillées</h2>
+        </div>
+        <div id="analyticsContent"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /***********************
+     * CONFIG (IMPORTANT)
+     ***********************/
+    // Optionnel: verrouillage léger (dissuasion, pas une vraie sécurité).
+    // Pour activer: définir un hash SHA-256 du code PIN (en hex) + mettre ADMIN_LOCK_ENABLED=true
+    // Exemple (bash): echo -n "1234" | shasum -a 256
+    const ADMIN_LOCK_ENABLED = false;
+    const ADMIN_PIN_SHA256_HEX = ""; // ex: "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4"
+
+    // Protection PII: emails masqués par défaut (recommandé)
+    let SHOW_EMAILS = false;
+
+    /***********************
+     * STATE
+     ***********************/
+    let allUsers = [];
+    let filteredUsers = [];
+    let isLoading = false;
+
+    /***********************
+     * HELPERS
+     ***********************/
+    function safeNumber(n, fallback = 0) {
+      const x = Number(n);
+      return Number.isFinite(x) ? x : fallback;
+    }
+
+    function clamp(n, min, max) {
+      return Math.min(max, Math.max(min, n));
+    }
+
+    function safeDate(d) {
+      const dt = new Date(d);
+      return Number.isFinite(dt.getTime()) ? dt : null;
+    }
+
+    function formatDateTime(d) {
+      const dt = safeDate(d);
+      if (!dt) return "-";
+      return dt.toLocaleString("fr-FR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+    }
+
+    function maskEmail(email) {
+      const s = String(email || "");
+      if (!s.includes("@")) return s ? "—" : "—";
+      const [user, dom] = s.split("@");
+      const u = user.length <= 2 ? user[0] + "*" : user.slice(0, 2) + "****";
+      const d = dom.length <= 3 ? "***" : dom.slice(0, 1) + "***" + dom.slice(-1);
+      return `${u}@${d}`;
+    }
+
+    function showNotice(html) {
+      const n = document.getElementById("securityNotice");
+      n.style.display = "block";
+      n.innerHTML = html;
+    }
+
+    function showEmptyState(containerId) {
+      const el = document.getElementById(containerId);
+      el.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">📭</div>
+          <h3>Aucune donnée disponible</h3>
+          <p>Les données apparaîtront ici une fois que des apprenants auront commencé le module.</p>
+        </div>
+      `;
+    }
+
+    function showLoading(containerId, msg="Chargement des données...") {
+      const el = document.getElementById(containerId);
+      el.innerHTML = `
+        <div class="loading">
+          <div class="spinner"></div>
+          <p style="margin-top:1rem; color:var(--text-light);">${msg}</p>
+        </div>
+      `;
+    }
+
+    async function sha256Hex(str) {
+      const enc = new TextEncoder().encode(str);
+      const digest = await crypto.subtle.digest("SHA-256", enc);
+      const arr = Array.from(new Uint8Array(digest));
+      return arr.map(b => b.toString(16).padStart(2, "0")).join("");
+    }
+
+    async function adminLockGate() {
+      if (!ADMIN_LOCK_ENABLED) return true;
+      if (!ADMIN_PIN_SHA256_HEX) {
+        showNotice("<strong>Admin lock activé</strong> mais hash PIN manquant.");
+        return false;
+      }
+      const ok = sessionStorage.getItem("admin_ok") === "1";
+      if (ok) return true;
+
+      const pin = prompt("Accès administrateur : saisir le PIN");
+      if (!pin) return false;
+
+      const h = await sha256Hex(pin);
+      if (h === ADMIN_PIN_SHA256_HEX.toLowerCase()) {
+        sessionStorage.setItem("admin_ok", "1");
+        return true;
+      }
+      alert("PIN incorrect.");
+      return false;
+    }
+
+    function storageAvailable() {
+      return (window.storage && typeof window.storage.list === "function" && typeof window.storage.get === "function");
+    }
+
+    /***********************
+     * DATA LOADING
+     ***********************/
+    async function loadAllUsers() {
+      if (isLoading) return;
+      isLoading = true;
+
+      try {
+        if (!storageAvailable()) {
+          showNotice(
+            "<strong>Stockage partagé indisponible.</strong> " +
+            "L'objet <code>window.storage</code> n'est pas défini sur cette page. " +
+            "Vérifier le script d'initialisation (ou l'API) côté module apprenant."
+          );
+          allUsers = [];
+          filteredUsers = [];
+          updateDashboard();
+          isLoading = false;
+          return;
+        }
+
+        // Liste toutes les clés tracking_
+        const keysRes = await window.storage.list("tracking_", true);
+        const keys = (keysRes && Array.isArray(keysRes.keys)) ? keysRes.keys : [];
+
+        if (keys.length === 0) {
+          allUsers = [];
+          filteredUsers = [];
+          updateDashboard();
+          isLoading = false;
+          return;
+        }
+
+        // Charge en parallèle
+        const results = await Promise.allSettled(keys.map(k => window.storage.get(k, true)));
+        const users = [];
+
+        for (const r of results) {
+          if (r.status !== "fulfilled") continue;
+          const raw = r.value && r.value.value;
+          if (!raw) continue;
+          try {
+            const u = JSON.parse(raw);
+            // Normalisation minimale
+            u.progress = clamp(safeNumber(u.progress, 0), 0, 100);
+            u.points = safeNumber(u.points, 0);
+            u.sessionTime = safeNumber(u.sessionTime, 0);
+            u.totalLessons = safeNumber(u.totalLessons, 5);
+            u.completedLessons = safeNumber(u.completedLessons, 0);
+            u.department = String(u.department || "Autre");
+            u.name = String(u.name || "—");
+            u.email = String(u.email || "");
+            u.completed = Boolean(u.completed);
+            u.lastActivity = u.lastActivity || null;
+            users.push(u);
+          } catch (e) {
+            // ignore
+          }
+        }
+
+        allUsers = users;
+        filteredUsers = [...allUsers];
+        applyFilters(); // rend table
+        updateDashboard(); // global + charts + analytics
+
+      } catch (e) {
+        allUsers = [];
+        filteredUsers = [];
+        updateDashboard();
+        showNotice("<strong>Erreur de chargement.</strong> Impossible de récupérer les données.");
+      } finally {
+        isLoading = false;
+      }
+    }
+
+    /***********************
+     * RENDER
+     ***********************/
+    function updateDashboard() {
+      updateGlobalStats();
+      updateDepartmentChart();
+      updateQuizChart();
+      updateUsersTable();
+      updateAnalytics();
+    }
+
+    function updateGlobalStats() {
+      const total = allUsers.length;
+      const completed = allUsers.filter(u => u.completed).length;
+
+      const avgProgress = total > 0
+        ? allUsers.reduce((sum, u) => sum + safeNumber(u.progress, 0), 0) / total
+        : 0;
+
+      const avgTime = total > 0
+        ? allUsers.reduce((sum, u) => sum + safeNumber(u.sessionTime, 0), 0) / total
+        : 0;
+
+      let totalQuizScore = 0;
+      let quizCount = 0;
+      allUsers.forEach(u => {
+        if (u.quizScores && typeof u.quizScores === "object") {
+          Object.values(u.quizScores).forEach(score => {
+            totalQuizScore += safeNumber(score, 0);
+            quizCount++;
+          });
+        }
+      });
+      const avgScore = quizCount > 0 ? totalQuizScore / quizCount : 0;
+
+      // Dernière activité
+      let last = null;
+      allUsers.forEach(u => {
+        const d = safeDate(u.lastActivity);
+        if (!d) return;
+        if (!last || d > last) last = d;
+      });
+
+      document.getElementById("totalUsers").textContent = total;
+      document.getElementById("avgCompletion").textContent = Math.round(avgProgress);
+      document.getElementById("completedModules").textContent = completed;
+      document.getElementById("avgTime").textContent = Math.round(avgTime);
+      document.getElementById("avgScore").textContent = Math.round(avgScore);
+      document.getElementById("lastActivity").textContent = last ? formatDateTime(last) : "-";
+    }
+
+    function updateDepartmentChart() {
+      const departments = {};
+
+      allUsers.forEach(user => {
+        const dept = String(user.department || "Autre");
+        if (!departments[dept]) {
+          departments[dept] = { count: 0, totalProgress: 0 };
+        }
+        departments[dept].count++;
+        departments[dept].totalProgress += safeNumber(user.progress, 0);
+      });
+
+      const chartContainer = document.getElementById("departmentChart");
+      chartContainer.innerHTML = "";
+
+      const entries = Object.entries(departments);
+      if (entries.length === 0) {
+        chartContainer.innerHTML = `<div class="empty-state" style="padding:1rem;">Aucune donnée</div>`;
+        return;
+      }
+
+      // Fixe: max bar height = 200px
+      const MAX_H = 200;
+      entries.forEach(([dept, data]) => {
+        const avg = data.count > 0 ? data.totalProgress / data.count : 0;
+        const avgClamped = clamp(avg, 0, 100);
+        const barH = Math.round((avgClamped / 100) * MAX_H);
+
+        const barDiv = document.createElement("div");
+        barDiv.className = "bar";
+        barDiv.style.height = `${barH}px`;
+        barDiv.textContent = `${Math.round(avgClamped)}%`;
+
+        const labelDiv = document.createElement("div");
+        labelDiv.className = "bar-label";
+        labelDiv.textContent = `${dept} (${data.count})`;
+
+        const container = document.createElement("div");
+        container.style.flex = "1";
+        container.style.display = "flex";
+        container.style.flexDirection = "column";
+        container.style.alignItems = "center";
+        container.appendChild(barDiv);
+        container.appendChild(labelDiv);
+
+        chartContainer.appendChild(container);
+      });
+    }
+
+    function updateQuizChart() {
+      const lessons = ["Leçon 1", "Leçon 2", "Leçon 3", "Leçon 4", "Leçon 5"];
+      const sum = [0, 0, 0, 0, 0];
+      const cnt = [0, 0, 0, 0, 0];
+
+      allUsers.forEach(user => {
+        if (user.quizScores && typeof user.quizScores === "object") {
+          Object.entries(user.quizScores).forEach(([lessonId, score]) => {
+            const idx = parseInt(lessonId, 10) - 1;
+            if (idx >= 0 && idx < 5) {
+              sum[idx] += safeNumber(score, 0);
+              cnt[idx] += 1;
+            }
+          });
+        }
+      });
+
+      const chartContainer = document.getElementById("quizChart");
+      chartContainer.innerHTML = "";
+
+      const MAX_H = 200;
+      lessons.forEach((lesson, i) => {
+        const avg = cnt[i] > 0 ? sum[i] / cnt[i] : 0;
+        const avgClamped = clamp(avg, 0, 100);
+        const barH = Math.round((avgClamped / 100) * MAX_H);
+
+        const barDiv = document.createElement("div");
+        barDiv.className = "bar";
+        barDiv.style.height = `${barH}px`;
+        barDiv.textContent = `${Math.round(avgClamped)}%`;
+
+        const labelDiv = document.createElement("div");
+        labelDiv.className = "bar-label";
+        labelDiv.textContent = `${lesson} (${cnt[i]})`;
+
+        const container = document.createElement("div");
+        container.style.flex = "1";
+        container.style.display = "flex";
+        container.style.flexDirection = "column";
+        container.style.alignItems = "center";
+        container.appendChild(barDiv);
+        container.appendChild(labelDiv);
+
+        chartContainer.appendChild(container);
+      });
+    }
+
+    function updateUsersTable() {
+      const container = document.getElementById("usersTableContainer");
+      const countEl = document.getElementById("userCount");
+
+      if (allUsers.length === 0) {
+        showEmptyState("usersTableContainer");
+        countEl.textContent = "0 apprenants";
+        return;
+      }
+
+      if (filteredUsers.length === 0) {
+        container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🔍</div><p>Aucun résultat trouvé</p></div>`;
+        countEl.textContent = "0 apprenants";
+        return;
+      }
+
+      countEl.textContent = `${filteredUsers.length} apprenants`;
+
+      // Build DOM safely (no innerHTML with user content)
+      const table = document.createElement("table");
+
+      const thead = document.createElement("thead");
+      const trh = document.createElement("tr");
+
+      const headers = [
+        "Nom",
+        "Email",
+        "Département",
+        "Progression",
+        "Points",
+        "Quiz réussis",
+        "Temps",
+        "Statut",
+        "Dernière activité",
+      ];
+
+      headers.forEach(h => {
+        const th = document.createElement("th");
+        th.textContent = h;
+        trh.appendChild(th);
+      });
+
+      thead.appendChild(trh);
+      table.appendChild(thead);
+
+      const tbody = document.createElement("tbody");
+
+      filteredUsers.forEach(user => {
+        const tr = document.createElement("tr");
+
+        const statusBadge = user.completed
+          ? { cls: "badge badge-success", txt: "✓ Terminé" }
+          : (user.progress > 0 ? { cls: "badge badge-warning", txt: "En cours" } : { cls: "badge badge-info", txt: "Pas commencé" });
+
+        const quizPassed = Object.values(user.quizScores || {}).filter(s => safeNumber(s, 0) === 100).length;
+
+        // Nom
+        const tdName = document.createElement("td");
+        const strong = document.createElement("strong");
+        strong.textContent = user.name || "—";
+        tdName.appendChild(strong);
+        tr.appendChild(tdName);
+
+        // Email (masqué par défaut)
+        const tdEmail = document.createElement("td");
+        tdEmail.textContent = SHOW_EMAILS ? (user.email || "—") : maskEmail(user.email);
+        tr.appendChild(tdEmail);
+
+        // Département
+        const tdDept = document.createElement("td");
+        tdDept.textContent = user.department || "Autre";
+        tr.appendChild(tdDept);
+
+        // Progression
+        const tdProg = document.createElement("td");
+        const progWrap = document.createElement("div");
+        progWrap.style.display = "flex";
+        progWrap.style.alignItems = "center";
+        progWrap.style.gap = "0.5rem";
+
+        const progBar = document.createElement("div");
+        progBar.className = "progress-mini";
+        const progFill = document.createElement("div");
+        progFill.className = "progress-mini-fill";
+        progFill.style.width = `${clamp(safeNumber(user.progress, 0), 0, 100)}%`;
+        progBar.appendChild(progFill);
+
+        const progTxt = document.createElement("span");
+        progTxt.style.fontWeight = "600";
+        progTxt.style.minWidth = "40px";
+        progTxt.textContent = `${Math.round(clamp(safeNumber(user.progress, 0), 0, 100))}%`;
+
+        progWrap.appendChild(progBar);
+        progWrap.appendChild(progTxt);
+        tdProg.appendChild(progWrap);
+        tr.appendChild(tdProg);
+
+        // Points
+        const tdPts = document.createElement("td");
+        const stPts = document.createElement("strong");
+        stPts.textContent = String(safeNumber(user.points, 0));
+        tdPts.appendChild(stPts);
+        tdPts.appendChild(document.createTextNode(" / 100"));
+        tr.appendChild(tdPts);
+
+        // Quiz
+        const tdQuiz = document.createElement("td");
+        tdQuiz.textContent = `${quizPassed} / ${safeNumber(user.totalLessons, 5)}`;
+        tr.appendChild(tdQuiz);
+
+        // Temps
+        const tdTime = document.createElement("td");
+        tdTime.textContent = `${Math.round(safeNumber(user.sessionTime, 0))} min`;
+        tr.appendChild(tdTime);
+
+        // Statut
+        const tdStatus = document.createElement("td");
+        const badge = document.createElement("span");
+        badge.className = statusBadge.cls;
+        badge.textContent = statusBadge.txt;
+        tdStatus.appendChild(badge);
+        tr.appendChild(tdStatus);
+
+        // Dernière activité
+        const tdLast = document.createElement("td");
+        tdLast.textContent = formatDateTime(user.lastActivity);
+        tr.appendChild(tdLast);
+
+        tbody.appendChild(tr);
+      });
+
+      table.appendChild(tbody);
+
+      container.innerHTML = "";
+      container.appendChild(table);
+    }
+
+    function updateAnalytics() {
+      const container = document.getElementById("analyticsContent");
+
+      const totalAttempts = allUsers.reduce((sum, u) => {
+        const qa = (u.quizAttempts && typeof u.quizAttempts === "object") ? u.quizAttempts : {};
+        const s = Object.values(qa).reduce((acc, a) => acc + safeNumber(a, 0), 0);
+        return sum + s;
+      }, 0);
+
+      const avgAttempts = allUsers.length > 0 ? totalAttempts / allUsers.length : 0;
+
+      const completionRate = allUsers.length > 0
+        ? (allUsers.filter(u => u.completed).length / allUsers.length * 100)
+        : 0;
+
+      const engagementRate = allUsers.length > 0
+        ? (allUsers.filter(u => safeNumber(u.progress, 0) > 20).length / allUsers.length * 100)
+        : 0;
+
+      const badgesTotal = allUsers.reduce((sum, u) => sum + safeNumber(u.badges, 0), 0);
+
+      container.innerHTML = `
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Taux d'engagement (>20% progression)</div>
+            <div class="stat-value">${engagementRate.toFixed(1)}%</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Taux de complétion finale</div>
+            <div class="stat-value">${completionRate.toFixed(1)}%</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Tentatives moyennes (tous quiz)</div>
+            <div class="stat-value">${avgAttempts.toFixed(1)}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Badges débloqués (total)</div>
+            <div class="stat-value">${Math.round(badgesTotal)}</div>
+          </div>
+        </div>
+
+        <h3 style="margin:2rem 0 1rem; color:var(--primary);">Insights</h3>
+        <div style="display:grid; gap:1rem;">
+          <div style="padding:1rem; background:#f8f9fa; border-radius:8px;">
+            <strong>Leçon la plus difficile:</strong> ${getMostDifficultLesson()}
+          </div>
+          <div style="padding:1rem; background:#f8f9fa; border-radius:8px;">
+            <strong>Département le plus performant:</strong> ${getBestDepartment()}
+          </div>
+          <div style="padding:1rem; background:#f8f9fa; border-radius:8px;">
+            <strong>Pic d'activité:</strong> ${getPeakActivity()}
+          </div>
+        </div>
+      `;
+    }
+
+    function getMostDifficultLesson() {
+      const lessons = ["Leçon 1","Leçon 2","Leçon 3","Leçon 4","Leçon 5"];
+      const attempts = [0,0,0,0,0];
+
+      allUsers.forEach(user => {
+        const qa = (user.quizAttempts && typeof user.quizAttempts === "object") ? user.quizAttempts : {};
+        Object.entries(qa).forEach(([id, count]) => {
+          const idx = parseInt(id, 10) - 1;
+          if (idx >= 0 && idx < 5) attempts[idx] += safeNumber(count, 0);
+        });
+      });
+
+      const max = Math.max(...attempts);
+      if (max === 0) return "-";
+      const maxIdx = attempts.indexOf(max);
+      return `${lessons[maxIdx]} (${max} tentatives au total)`;
+    }
+
+    function getBestDepartment() {
+      const depts = {};
+      allUsers.forEach(user => {
+        const d = String(user.department || "Autre");
+        if (!depts[d]) depts[d] = [];
+        depts[d].push(safeNumber(user.progress, 0));
+      });
+
+      let bestName = "-";
+      let bestAvg = -1;
+
+      Object.entries(depts).forEach(([name, progresses]) => {
+        const avg = progresses.length ? progresses.reduce((a,b)=>a+b,0)/progresses.length : 0;
+        if (avg > bestAvg) {
+          bestAvg = avg;
+          bestName = name;
+        }
+      });
+
+      if (bestAvg < 0) return "-";
+      return `${bestName} (${Math.round(bestAvg)}% de progression moyenne)`;
+    }
+
+    function getPeakActivity() {
+      if (allUsers.length === 0) return "-";
+
+      const hours = {};
+      allUsers.forEach(user => {
+        const d = safeDate(user.lastActivity);
+        if (!d) return;
+        const h = d.getHours();
+        hours[h] = (hours[h] || 0) + 1;
+      });
+
+      const entries = Object.entries(hours);
+      if (entries.length === 0) return "-";
+
+      let best = entries[0];
+      for (const e of entries) {
+        if (e[1] > best[1]) best = e;
+      }
+      return `${best[0]}h (${best[1]} activités)`;
+    }
+
+    /***********************
+     * FILTERS / TABS
+     ***********************/
+    function applyFilters() {
+      const dept = document.getElementById("filterDepartment").value;
+      const status = document.getElementById("filterStatus").value;
+      const search = document.getElementById("searchUser").value.toLowerCase().trim();
+
+      filteredUsers = allUsers.filter(user => {
+        const matchDept = !dept || user.department === dept;
+
+        const p = safeNumber(user.progress, 0);
+        const matchStatus = !status ||
+          (status === "completed" && user.completed) ||
+          (status === "in-progress" && p > 0 && !user.completed) ||
+          (status === "not-started" && p === 0);
+
+        const name = String(user.name || "").toLowerCase();
+        const email = String(user.email || "").toLowerCase();
+        const matchSearch = !search || name.includes(search) || email.includes(search);
+
+        return matchDept && matchStatus && matchSearch;
+      });
+
+      updateUsersTable();
+    }
+
+    function switchTab(tabName, btn) {
+      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll('[id^="tab-"]').forEach(t => t.style.display = "none");
+      btn.classList.add("active");
+      document.getElementById(`tab-${tabName}`).style.display = "block";
+    }
+
+    /***********************
+     * EXPORT / REFRESH
+     ***********************/
+    async function exportData() {
+      if (allUsers.length === 0) {
+        alert("Aucune donnée à exporter");
+        return;
+      }
+
+      // CSV (UTF-8 with BOM for Excel compatibility)
+      const bom = "\uFEFF";
+      let csv = "Nom,Email,Département,Progression (%),Points,Leçons complétées,Temps (min),Statut,Dernière activité\n";
+
+      allUsers.forEach(user => {
+        const status = user.completed ? "Terminé" : (safeNumber(user.progress, 0) > 0 ? "En cours" : "Pas commencé");
+        const emailOut = SHOW_EMAILS ? (user.email || "") : maskEmail(user.email);
+
+        csv += `"${String(user.name||"").replaceAll('"','""')}","${String(emailOut).replaceAll('"','""')}","${String(user.department||"").replaceAll('"','""')}",` +
+               `${Math.round(safeNumber(user.progress,0))},${safeNumber(user.points,0)},${safeNumber(user.completedLessons,0)},${Math.round(safeNumber(user.sessionTime,0))},` +
+               `"${status}","${formatDateTime(user.lastActivity)}"\n`;
+      });
+
+      const blob = new Blob([bom + csv], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `acculturation-ia-module1-${new Date().toISOString().split("T")[0]}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    }
+
+    async function refreshData() {
+      showLoading("usersTableContainer", "Actualisation...");
+      await loadAllUsers();
+    }
+
+    /***********************
+     * INIT
+     ***********************/
+    (async function init(){
+      const ok = await adminLockGate();
+      if (!ok) return;
+
+      // PII toggle
+      const pii = document.getElementById("togglePII");
+      pii.checked = SHOW_EMAILS;
+      pii.addEventListener("change", () => {
+        SHOW_EMAILS = pii.checked;
+        showNotice(
+          SHOW_EMAILS
+            ? "<strong>Attention:</strong> affichage des emails activé (PII)."
+            : "<strong>PII:</strong> emails masqués (recommandé)."
+        );
+        updateUsersTable();
+      });
+
+      // Filters listeners
+      document.getElementById("filterDepartment").addEventListener("change", applyFilters);
+      document.getElementById("filterStatus").addEventListener("change", applyFilters);
+      document.getElementById("searchUser").addEventListener("input", applyFilters);
+
+      // Buttons
+      document.getElementById("btnExport").addEventListener("click", exportData);
+      document.getElementById("btnRefresh").addEventListener("click", refreshData);
+
+      showNotice("<strong>PII:</strong> emails masqués par défaut. Activez l'option uniquement si nécessaire.");
+      await loadAllUsers();
+
+      // Auto-refresh every 2 minutes
+      setInterval(loadAllUsers, 120000);
+    })();
+  </script>
+</body>
+</html>
+```
